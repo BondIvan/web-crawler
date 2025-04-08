@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 public class SourceRequestDtoMapper {
 
     public Source fromDto(SourceRequestDTO sourceRequestDTO) {
-        return Source.builder()
-                .url(sourceRequestDTO.url())
-                .schedule(sourceRequestDTO.schedule())
-                .selectors(sourceRequestDTO.selectors())
-                .build();
+        Source source = new Source();
+        source.setUrl(sourceRequestDTO.url());
+        source.setSchedule(sourceRequestDTO.schedule());
+        source.setSelectors(sourceRequestDTO.selectors());
+
+        return source;
     }
 
     public SourceRequestDTO toDto(Source source) {

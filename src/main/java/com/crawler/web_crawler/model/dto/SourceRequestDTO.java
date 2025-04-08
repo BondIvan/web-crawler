@@ -7,10 +7,11 @@ import jakarta.validation.constraints.Pattern;
 import java.util.Map;
 
 public record SourceRequestDTO(
-        @NotBlank(message = "URL cannot be empty")
+        @NotNull @NotBlank(message = "URL cannot be empty")
         String url,
 
-        @NotNull @NotBlank @Pattern(regexp = "^\\S+ \\S+ \\S+ \\S+ \\S+ \\S+$", message = "Invalid cron expression")
+        @NotNull @NotBlank
+        @Pattern(regexp = "^\\S+ \\S+ \\S+ \\S+ \\S+ \\S+$", message = "Invalid cron expression")
         String schedule,
 
         @NotNull

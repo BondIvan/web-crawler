@@ -1,13 +1,13 @@
 CREATE SCHEMA IF NOT EXISTS crawler;
 
 SET NAMES 'UTF8MB4';
-SET TIME_ZONE = '+30:00';
+SET TIME_ZONE = '+3:00';
 
 USE crawler;
 
 DROP TABLE IF EXISTS source;
 
-CREATE TABLE Source
+CREATE TABLE `source`
 (
     id        BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     url       VARCHAR(255) NOT NULL,
@@ -18,14 +18,14 @@ CREATE TABLE Source
 
 DROP TABLE IF EXISTS news_article;
 
-CREATE TABLE News_article
+CREATE TABLE `news_article`
 (
     id           BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     source_id    BIGINT UNSIGNED NOT NULL,
     title        VARCHAR(255) DEFAULT NULL,
     content      TEXT DEFAULT NULL,
-    publish_date DATETIME(6) DEFAULT CURRENT_TIMESTAMP,
+    publish_date DATETIME DEFAULT CURRENT_TIMESTAMP,
     hash         VARCHAR(255),
-    FOREIGN KEY (source_id) REFERENCES Source (id), # ON UPDATE/DELETE CASCADE
+    FOREIGN KEY (source_id) REFERENCES source (id), # ON UPDATE/DELETE CASCADE
     CONSTRAINT UQ_News_article_Hash UNIQUE (hash)
 );
