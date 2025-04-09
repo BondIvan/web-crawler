@@ -3,6 +3,7 @@ package com.crawler.web_crawler.parser;
 import com.crawler.web_crawler.exception.JsoupException;
 import com.crawler.web_crawler.model.entity.NewsArticle;
 import com.crawler.web_crawler.model.entity.Source;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class JsoupParser implements Parser {
     private static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36";
@@ -35,6 +37,7 @@ public class JsoupParser implements Parser {
         Elements elementsFromPageByClass = document.getElementsByClass(selectors.get("block"));
 
         if(elementsFromPageByClass.isEmpty()) {
+            log.warn("Cannot find news block with this selector: {}", selectors.get("block"));
             throw new JsoupException("Cannot find news block with this selector: " + selectors.get("block"));
         }
 
@@ -62,14 +65,17 @@ public class JsoupParser implements Parser {
 
     private void checkSelectors(Element block, Map<String, String> selectors) {
         if(block.selectFirst(selectors.get("title")) == null) {
+            log.error("Cannot find selector for title: {}", selectors.get("title"));
             throw new JsoupException("Cannot find selector for title: " + selectors.get("title"));
         }
 
         if(block.selectFirst(selectors.get("content")) == null) {
+            log.error("Cannot find selector for content: {}", selectors.get("content"));
             throw new JsoupException("Cannot find selector for content: " + selectors.get("content"));
         }
 
         if(block.selectFirst(selectors.get("date")) == null) {
+            log.error("Cannot find selector for date: {}", selectors.get("date"));
             throw new JsoupException("Cannot find selector for date: " + selectors.get("date"));
         }
     }
@@ -93,6 +99,7 @@ public class JsoupParser implements Parser {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d MMMM yyyy, HH:mm");
             return LocalDateTime.parse(date, formatter);
         } catch (DateTimeParseException e) {
+            log.warn("Failed to set date");
             return null;
         }
     }

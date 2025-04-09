@@ -7,12 +7,14 @@ import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.repository.SourceRepository;
 import com.crawler.web_crawler.service.SourceService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class SourceServiceImpl implements SourceService {
     private final SourceRepository repository;
@@ -37,13 +39,14 @@ public class SourceServiceImpl implements SourceService {
     public Source addSource(SourceRequestDTO sourceRequestDTO) {
         //TODO Check if such a source correct
 
-
         if(repository.existsByUrl(sourceRequestDTO.url()))
             throw new SourceAlreadyExistsException("Source with this url: " + sourceRequestDTO.url() + " already exist");
 
         Source source = mapper.fromDto(sourceRequestDTO);
 
         //TODO Add validation selectors
+
+        log.info("Adding new source with URL: {}", sourceRequestDTO.url());
 
         try {
             return repository.save(source);
@@ -62,10 +65,14 @@ public class SourceServiceImpl implements SourceService {
 
     @Override
     public void deleteSource(Long id) {
-        Optional<Source> source = repository.findById(id);
-        if(source.isEmpty())
+        Optional<Source> optionalSource = repository.findById(id);
+        if(optionalSource.isEmpty())
             throw new SourceNotFoundException("Source with such id not found");
 
-        repository.delete(source.get());
+        Source source = optionalSource.get();
+
+        log.info("Deleting source with URL: {}", source.getUrl());
+
+        repository.delete(source);
     }
 }

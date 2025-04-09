@@ -44,7 +44,6 @@ public class SourceController {
     @PostMapping("/source/{id}/parse")
     public void parseSource(@PathVariable("id") Long id) {
         Source source = service.getSource(id);
-        System.out.println(source.getSelectors());
         articleService.parseAndSave(source);
     }
 
