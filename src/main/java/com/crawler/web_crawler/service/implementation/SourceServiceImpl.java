@@ -64,6 +64,11 @@ public class SourceServiceImpl implements SourceService {
     }
 
     @Override
+    public List<Source> getAllActiveSources() {
+        return repository.findAllByIsActive();
+    }
+
+    @Override
     public void deleteSource(Long id) {
         Optional<Source> optionalSource = repository.findById(id);
         if(optionalSource.isEmpty())

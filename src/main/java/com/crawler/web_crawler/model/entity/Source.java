@@ -33,9 +33,13 @@ public class Source {
     @JsonProperty("selectors")
     private Map<String, String> selectors;
 
+    @Column(name = "is_active")
+    private Boolean isActive;
+
     @Override
     public String toString() {
-        return String.format("Source: id=%d, url=%s, schedule=%s, selectors=%s", id, url, schedule, selectors);
+        return String.format("Source: id=%d, isActive=%s, url=%s, schedule=%s, selectors=%s",
+                id, isActive, url, schedule, selectors);
     }
 
     @Override

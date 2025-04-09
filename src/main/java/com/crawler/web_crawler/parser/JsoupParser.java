@@ -27,6 +27,7 @@ public class JsoupParser implements Parser {
 
     @Override
     public List<NewsArticle> parse(Source source) {
+        log.info("Start scanning {} for new articles", source.getUrl());
         String url = source.getUrl();
         Map<String, String> selectors = source.getSelectors(); // blockWithArticle, title, content, date
 
@@ -59,6 +60,7 @@ public class JsoupParser implements Parser {
 
             articles.add(article);
         }
+        log.info("Stop scanning {}", source.getUrl());
 
         return articles;
     }

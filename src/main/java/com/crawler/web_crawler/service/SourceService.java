@@ -9,5 +9,6 @@ public interface SourceService {
     Source getSource(Long id);
     Source addSource(SourceRequestDTO sourceRequestDTO);
     List<SourceRequestDTO> getAllSources();
+    List<Source> getAllActiveSources();
     void deleteSource(Long id);
 }
