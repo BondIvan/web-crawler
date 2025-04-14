@@ -7,7 +7,6 @@ import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.repository.SourceRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -34,28 +33,91 @@ class SourceServiceImplTest {
 
     private Source source1;
     private Source source2;
+    private Source source3;
     private SourceRequestDTO sourceRequestDTO1;
     private SourceRequestDTO sourceRequestDTO2;
+    private SourceRequestDTO sourceRequestDTO3;
 
     @BeforeEach
     void setUp() {
-        source1 = new Source(1L, "https://source1.com", "12345", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"));
-        source2 = new Source(2L, "https://source2.com", "67890", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"));
-        sourceRequestDTO1 = new SourceRequestDTO("https://source1.com", "12345", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"));
-        sourceRequestDTO2 = new SourceRequestDTO("https://source2.com", "67890", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"));
+        source1 = new Source(1L, "https://source1.com", "1 1 1 1 1 1", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"), true);
+        source2 = new Source(2L, "https://source2.com", "2 2 2 2 2 2", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"), true);
+        source3 = new Source(3L, "https://source3.com", "3 3 3 3 3 3", Map.of("Key1Source3", "Value1Source3", "Key2Source3", "Value2Source3"), false);
+        sourceRequestDTO1 = new SourceRequestDTO("https://source1.com", "1 1 1 1 1 1", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"), true);
+        sourceRequestDTO2 = new SourceRequestDTO("https://source2.com", "2 2 2 2 2 2", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"), true);
+        sourceRequestDTO3 = new SourceRequestDTO("https://source3.com", "3 3 3 3 3 3", Map.of("Key1Source3", "Value1Source3", "Key2Source3", "Value2Source3"), false);
     }
 
     @Test
-    @Disabled
-    void getSource() {
+    void getSource_whenSourceExist_shouldReturnSource() {
+        // Given
+        Long id = 1L;
+
+        when(repository.findById(id)).thenReturn(Optional.of(source1));
+
+        // When
+        Source sourceFromRepo = underTest.getSource(id);
+
+        // Then
+        assertEquals(id, sourceFromRepo.getId());
+        assertEquals(source1, sourceFromRepo);
+
+        verify(repository).findById(id);
+    }
+
+    @Test
+    void getSource_whenSourceDoesntExist_shouldReturnException() {
+        // Given
+        Long id = 1L;
+
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When
+        SourceNotFoundException exception = assertThrows(
+                SourceNotFoundException.class,
+                () -> underTest.getSource(id));
+
+        // Then
+        assertEquals("Source with such id not found", exception.getMessage());
+
+        verify(repository).findById(id);
+    }
+
+    @Test
+    void getAllActiveSources_whenActiveSourcesExist_shouldReturnSourceList() {
+        // Given
+        when(repository.findAllByIsActive()).thenReturn(List.of(source1, source2));
+
+        // When
+        List<Source> activeSources = underTest.getAllActiveSources();
+
+        // Then
+        assertThat(activeSources).containsExactlyInAnyOrder(source1, source2);
+        assertThat(activeSources).hasSize(2);
+
+        verify(repository).findAllByIsActive();
+        verifyNoMoreInteractions(repository);
+    }
+
+    @Test
+    void getAllActiveSources_whenNoActiveSources_shouldReturnEmptySourceList() {
+        // Given
+        when(repository.findAllByIsActive()).thenReturn(List.of());
+
+        // When
+        List<Source> emptyList = underTest.getAllActiveSources();
+
+        // Then
+        assertTrue(emptyList.isEmpty());
+        verify(repository).findAllByIsActive();
     }
 
     @Test
     void addSource_whenNoDuplicates_shouldSaveAndReturnNewSource() {
         // Given
-        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "11111", Map.of("key", "value"));
-        Source newSource = new Source(null, "https://source.com", "11111", Map.of("key", "value"));
-        Source savedSource = new Source(3L, "https://source.com", "11111", Map.of("key", "value"));
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
+        Source newSource = new Source(null, "https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
+        Source savedSource = new Source(3L, "https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
 
         when(repository.existsByUrl(sourceRequestDTO.url())).thenReturn(false);
         when(mapper.fromDto(sourceRequestDTO)).thenReturn(newSource);
@@ -74,7 +136,7 @@ class SourceServiceImplTest {
     @Test
     void addSource_whenDuplicates_shouldThrowException() {
         // Given
-        SourceRequestDTO duplicateUrlSourceRequestDTO = new SourceRequestDTO("https://source1.com", "22222", Map.of("key", "value"));
+        SourceRequestDTO duplicateUrlSourceRequestDTO = new SourceRequestDTO("https://source1.com", "2 2 2 2 2 2", Map.of("key", "value"), true);
 
         when(repository.existsByUrl(duplicateUrlSourceRequestDTO.url())).thenReturn(true);
 
@@ -93,10 +155,10 @@ class SourceServiceImplTest {
     }
 
     @Test
-    void addSource_WhenUrlNotExistsButDbConstraintViolated_ShouldThrowException() {
+    void addSource_WhenUrlNotExistsButDbConstraintViolated_shouldThrowException() {
         // Given
-        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "22222", Map.of("key", "value"));
-        Source source = new Source(null, "https://source.com", "22222", Map.of("key", "value"));
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "2 2 2 2 2 2", Map.of("key", "value"), true);
+        Source source = new Source(null, "https://source.com", "22222", Map.of("key", "value"), true);
 
         when(repository.existsByUrl(sourceRequestDTO.url())).thenReturn(false);
         when(mapper.fromDto(sourceRequestDTO)).thenReturn(source);
@@ -143,8 +205,8 @@ class SourceServiceImplTest {
         List<SourceRequestDTO> dtoList = underTest.getAllSources();
 
         // Then
-        assertIterableEquals(List.of(sourceRequestDTO1, sourceRequestDTO2), dtoList);
-        assertEquals(2, dtoList.size());
+        assertThat(dtoList).containsExactlyInAnyOrder(sourceRequestDTO1, sourceRequestDTO2);
+        assertThat(dtoList).hasSize(2);
 
         verify(repository).findAll();
         verify(mapper).toDto(source1);
@@ -156,9 +218,8 @@ class SourceServiceImplTest {
     void deleteSource_whenSourceExist_shouldReturnNothing() {
         // Given
         Long id = 1L;
-        Optional<Source> optionalSource1 = Optional.of(source1);
 
-        when(repository.findById(id)).thenReturn(optionalSource1);
+        when(repository.findById(id)).thenReturn(Optional.of(source1));
 
         // When
         underTest.deleteSource(id);

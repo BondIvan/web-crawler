@@ -4,6 +4,7 @@ import com.crawler.web_crawler.exception.SourceAlreadyExistsException;
 import com.crawler.web_crawler.exception.SourceNotFoundException;
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
+import com.crawler.web_crawler.service.NewsParserService;
 import com.crawler.web_crawler.service.implementation.SourceServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,13 +33,46 @@ class SourceControllerTest {
     private MockMvc mockMvc;
     @MockBean
     private SourceServiceImpl sourceService;
+    @MockBean
+    private NewsParserService articleService;
     @Autowired
     private ObjectMapper objectMapper;
 
     @Test
+    void parseSource_whenSourceExist_shouldReturn200() throws Exception {
+        // Given
+        Long id = 1L;
+        Source mockSource = mock(Source.class);
+
+        when(sourceService.getSource(id)).thenReturn(mockSource);
+        doNothing().when(articleService).parseAndSave(mockSource);
+
+        // When & Then
+        mockMvc.perform(post("/api/v1/source/{id}/parse", id))
+                .andExpect(status().isOk());
+
+        verify(sourceService).getSource(id);
+        verify(articleService).parseAndSave(mockSource);
+    }
+
+    @Test
+    void parseSource_whenSourceDoesntExist_shouldReturn404WithMessage() throws Exception {
+        // Given
+        Long id = 1L;
+        String errorMessage = "Source with such id not found";
+
+        doThrow(new SourceNotFoundException(errorMessage)).when(sourceService).getSource(id);
+
+        // When & Then
+        mockMvc.perform(post("/api/v1/source/{id}/parse", id))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$").value(errorMessage));
+    }
+
+    @Test
     void addSource_whenValidRequest_shouldReturn201WithSourceDTO() throws Exception {
         // Given
-        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "11111", Map.of("key", "value"));
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
         String jsonRequestBody = objectMapper.writeValueAsString(sourceRequestDTO);
 
         // When & Then
@@ -56,7 +90,7 @@ class SourceControllerTest {
     @Test
     void addSource_whenDuplicateSource_shouldReturn409WithException() throws Exception {
         // Given
-        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://duplicate.com", "11111", Map.of("key", "value"));
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://duplicate.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
         String jsonRequestBody = objectMapper.writeValueAsString(sourceRequestDTO);
         String errorMessage = "Source with this url: " + sourceRequestDTO.url() + " already exist";
 
@@ -97,8 +131,8 @@ class SourceControllerTest {
     @Test
     void getAllSources_whenSourcesExist_shouldReturn200WithSources() throws Exception {
         // Given
-        SourceRequestDTO sourceRequestDTO1 = new SourceRequestDTO("https://source1.com", "11111", Map.of("key1", "value1"));
-        SourceRequestDTO sourceRequestDTO2 = new SourceRequestDTO("https://source2.com", "22222", Map.of("key2", "value2"));
+        SourceRequestDTO sourceRequestDTO1 = new SourceRequestDTO("https://source1.com", "1 1 1 1 1 1", Map.of("key1", "value1"), true);
+        SourceRequestDTO sourceRequestDTO2 = new SourceRequestDTO("https://source2.com", "2 2 2 2 2 2", Map.of("key2", "value2"), true);
 
         when(sourceService.getAllSources()).thenReturn(List.of(sourceRequestDTO1, sourceRequestDTO2));
 
@@ -133,7 +167,6 @@ class SourceControllerTest {
     @Test
     void deleteSource_whenSourceExist_shouldReturn200WithMessage() throws Exception {
         // Given
-        Source source = new Source(1L, "https://source.com", "11111", Map.of("key", "value"));
         Long id = 1L;
 
         doNothing().when(sourceService).deleteSource(id);
@@ -153,7 +186,7 @@ class SourceControllerTest {
         Long id = 1L;
         String errorMessage = "Source with such id not found";
 
-        doThrow(new SourceNotFoundException(errorMessage)).when(sourceService).deleteSource(any());
+        doThrow(new SourceNotFoundException(errorMessage)).when(sourceService).deleteSource(id);
 
         // When & Then
         mockMvc.perform(delete("/api/v1/sources/{id}", id)
@@ -161,7 +194,7 @@ class SourceControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$").value(errorMessage));
 
-        verify(sourceService).deleteSource(any());
+        verify(sourceService).deleteSource(id);
     }
 
 
