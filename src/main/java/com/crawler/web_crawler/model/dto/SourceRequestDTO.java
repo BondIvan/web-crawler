@@ -15,5 +15,7 @@ public record SourceRequestDTO(
         String schedule,
 
         @NotNull
-        Map<String, String> selectors
+        Map<String, String> selectors,
+
+        boolean isActive
 ) {}

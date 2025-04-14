@@ -33,16 +33,16 @@ public class NewsParserServiceImpl implements NewsParserService {
 //TODO Consider adding a cache for article hashes, do not have to query the database for hashes every scan time
 
         if(articleList.isEmpty()) {
-            log.info("No new articles were found.");
+            log.info("No new articles were found for source: {}", source.getUrl());
             return;
         }
 
         try {
-            log.info("Found {} new articles", articleList.size());
+            log.info("Found and save {} new articles for service {}", articleList.size(), source.getUrl());
             repository.saveAll(articleList);
         } catch (DataIntegrityViolationException e) {
             log.error("The list of articles was not saved.\nReason: {}", e.getMessage());
-            throw new RuntimeException("Runtime exception: " + e.getMessage(), e);
+            throw new RuntimeException("Runtime exception while saving data: " + e.getMessage(), e);
         }
     }
 

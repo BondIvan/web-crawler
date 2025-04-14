@@ -12,6 +12,7 @@ public class SourceRequestDtoMapper {
         source.setUrl(sourceRequestDTO.url());
         source.setSchedule(sourceRequestDTO.schedule());
         source.setSelectors(sourceRequestDTO.selectors());
+        source.setIsActive(sourceRequestDTO.isActive());
 
         return source;
     }
@@ -20,7 +21,9 @@ public class SourceRequestDtoMapper {
         return new SourceRequestDTO(
                 source.getUrl(),
                 source.getSchedule(),
-                source.getSelectors());
+                source.getSelectors(),
+                source.getIsActive()
+        );
     }
 
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Objects;
 
 @Getter
@@ -23,7 +23,7 @@ public class NewsArticle {
     private String title;
 
     @Column(name = "publish_date")
-    private LocalDateTime publishDate;
+    private LocalDate publishDate;
 
     @Column(columnDefinition = "text")
     private String content;
@@ -45,12 +45,13 @@ public class NewsArticle {
 
         NewsArticle article = (NewsArticle) obj;
 
-        return Objects.equals(title, article.title) && Objects.equals(source, article.source);
+        return Objects.equals(title, article.title) &&
+                Objects.equals(source, article.source) && Objects.equals(hash, article.hash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, source);
+        return Objects.hash(title, source, hash);
     }
 
     @Override
