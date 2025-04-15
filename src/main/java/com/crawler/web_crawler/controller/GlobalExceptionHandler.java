@@ -1,5 +1,6 @@
 package com.crawler.web_crawler.controller;
 
+import com.crawler.web_crawler.exception.JsoupException.JsoupParseException;
 import com.crawler.web_crawler.exception.SourceAlreadyExistsException;
 import com.crawler.web_crawler.exception.SourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,11 @@ public class GlobalExceptionHandler {
                         (existing, replacement) -> replacement,
                         HashMap::new
                 )));
+    }
+
+    @ExceptionHandler(JsoupParseException.class)
+    public ResponseEntity<String> handleParseException(JsoupParseException exception) {
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(exception.getMessage());
     }
 
 }
