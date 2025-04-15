@@ -1,4 +1,4 @@
-package com.crawler.web_crawler.exception;
+package com.crawler.web_crawler.exception.JsoupException;
 
 public class JsoupParseException extends RuntimeException {
     public JsoupParseException(String message) {

@@ -35,6 +35,14 @@ public class NewsArticle {
     @Column(unique = true)
     private String hash; // for check duplicates
 
+    //TODO Если изменить title, date или source нужно изменять и hash. Подумать об этом
+    public void setHash() {
+        hash = String.valueOf(Objects.hash(
+                this.title.toLowerCase(),
+                this.publishDate,
+                this.source.getId()));
+    }
+
     @Override
     public boolean equals(Object obj) {
         if(this == obj)
@@ -60,12 +68,4 @@ public class NewsArticle {
                 id, title, content, publishDate, hash, source.toString());
     }
 
-    @PrePersist
-    public void generateHash() {
-        hash = String.valueOf(Objects.hash(
-                this.title.toLowerCase(),
-                this.publishDate,
-                this.source.getId()
-        ));
-    }
 }
