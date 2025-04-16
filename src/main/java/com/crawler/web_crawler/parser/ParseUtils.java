@@ -9,7 +9,7 @@ public class ParseUtils {
                 DateTimeFormatter.ofPattern("dd MMMM yyyy", Locale.forLanguageTag("ru")),
                 DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ru")),
                 DateTimeFormatter.ofPattern("dd MMMM yy", Locale.forLanguageTag("ru")),
-                DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.forLanguageTag("ru")),
+                DateTimeFormatter.ofPattern("d MMMM yy", Locale.forLanguageTag("ru")),
                 DateTimeFormatter.ofPattern("d MM yyyy"),
                 DateTimeFormatter.ofPattern("d MM yy"),
                 DateTimeFormatter.ofPattern("dd MM yy"),

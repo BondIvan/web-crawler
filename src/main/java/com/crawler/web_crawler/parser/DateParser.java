@@ -12,11 +12,12 @@ import java.util.List;
 @Component
 public class DateParser {
     private final static String REGEX_FULL_YEAR = ".*\\d{4}.*";
-    private final static String REGEX_SHORT_YEAR = ".*\\d{2}\b.*";
+    private final static String REGEX_SHORT_YEAR = ".*\\d{2}\\b.*";
     private final static String REGEX_TIME = "\\b\\d{1,2}:\\d{2}\\b";
     private final static String REGEX_COMMA = "[,]";
 
     public LocalDate toLocalDateFromString(String date) {
+        date = date.toLowerCase();
         date = deleteTime(date);
 
         int offset = getOffsetIfAdverbTimeExist(date);
@@ -27,7 +28,7 @@ public class DateParser {
         for(DateTimeFormatter formatter: ParseUtils.getDateTimeFormatters()) {
             try {
                 if(!date.matches(REGEX_FULL_YEAR) && !date.matches(REGEX_SHORT_YEAR))
-                    date = date + LocalDate.now().getYear();
+                    date = date + " " + LocalDate.now().getYear();
                 localDate = LocalDate.parse(date, formatter);
 
                 return localDate;
@@ -39,7 +40,10 @@ public class DateParser {
     }
 
     private String deleteTime(String date) {
-        return date.replaceAll(REGEX_TIME, "").replaceAll(REGEX_COMMA, "").trim();
+        return date
+                .replaceAll(REGEX_TIME, "")
+                .replaceAll(REGEX_COMMA, "")
+                .trim();
     }
 
     private int getOffsetIfAdverbTimeExist(String date) {
@@ -51,7 +55,6 @@ public class DateParser {
         DayAndOffset ruYesterday = new DayAndOffset("вчера", -1);
         List<DayAndOffset> daysWithOffset = List.of(ruToday, ruYesterday);
 
-        date = date.toLowerCase();
         for(DayAndOffset landDayAndOffset: daysWithOffset) {
             String name = landDayAndOffset.name();
             int offset = landDayAndOffset.offset();

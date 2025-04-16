@@ -41,7 +41,7 @@ public class JsoupParser implements Parser {
         try {
             document = jsoupClient.getPageByUrl(url);
         } catch (JsoupClientException e) {
-            throw new JsoupParseException(e.getMessage());
+            throw new JsoupParseException(e.getMessage(), e);
         }
 
         //TODO Add scan other pages for more news
@@ -63,7 +63,7 @@ public class JsoupParser implements Parser {
 
         for(int i = 0; i < size; i++) {
             String title = titles.get(i);
-            String content = contents.isEmpty() ? null : contents.get(i);
+            String content = (i < contents.size()) ? contents.get(i) : null;
             LocalDate publishDate = dateParser.toLocalDateFromString(publishDates.get(i));
             if(title == null || publishDate == null) {
                 log.warn("Skipping article due to missing fields {}", title == null ? "title" : "publish date");

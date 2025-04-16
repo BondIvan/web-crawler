@@ -13,11 +13,12 @@ import java.io.IOException;
 public class JsoupClient {
     private static final String USER_AGENT =
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36";
+    private static final int TIMEOUT = 10_000;
 
     public Document getPageByUrl(String url) throws JsoupClientException {
         try {
             return Jsoup.connect(url)
-                    .timeout(10_000)
+                    .timeout(TIMEOUT)
                     .userAgent(USER_AGENT)
                     .referrer("http://www.google.com")
                     .get();
