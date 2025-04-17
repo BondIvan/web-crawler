@@ -48,7 +48,7 @@ class NewsParserServiceImplTest {
         // Given
         List<NewsArticle> parsedArticles = new ArrayList<>(List.of(newsArticle1, newsArticle2));
         when(parser.parse(source)).thenReturn(parsedArticles);
-        when(repository.findAllByHash()).thenReturn(Set.of());
+        when(repository.findHashesBySource(any(Source.class))).thenReturn(Set.of());
 
         // When
         underTest.parseAndSave(source);
@@ -64,7 +64,7 @@ class NewsParserServiceImplTest {
         // Given
         List<NewsArticle> parsedArticles = new ArrayList<>(List.of(newsArticle1, newsArticle2));
         when(parser.parse(source)).thenReturn(parsedArticles);
-        when(repository.findAllByHash()).thenReturn(Set.of("hash1"));
+        when(repository.findHashesBySource(any(Source.class))).thenReturn(Set.of("hash1"));
 
         // When
         underTest.parseAndSave(source);
@@ -80,7 +80,7 @@ class NewsParserServiceImplTest {
         // Given
         List<NewsArticle> parsedArticles = new ArrayList<>(List.of(newsArticle1, newsArticle2));
         when(parser.parse(source)).thenReturn(parsedArticles);
-        when(repository.findAllByHash()).thenReturn(Set.of("hash1", "hash2"));
+        when(repository.findHashesBySource(any(Source.class))).thenReturn(Set.of("hash1", "hash2"));
 
         // When
         underTest.parseAndSave(source);
@@ -94,7 +94,7 @@ class NewsParserServiceImplTest {
         // Given
         List<NewsArticle> parsedArticles = new ArrayList<>(List.of(newsArticle1, newsArticle2));
         when(parser.parse(source)).thenReturn(parsedArticles);
-        when(repository.findAllByHash()).thenReturn(Set.of());
+        when(repository.findHashesBySource(any(Source.class))).thenReturn(Set.of());
 
         doThrow(new DataIntegrityViolationException("DB error")).when(repository).saveAll(List.of(newsArticle1, newsArticle2));
 

@@ -29,7 +29,7 @@ public class NewsParserServiceImpl implements NewsParserService {
     @Override
     public void parseAndSave(Source source) {
         List<NewsArticle> articleList = parser.parse(source);
-        Set<String> hashes = getHashesFromDb();
+        Set<String> hashes = getHashesFromDb(source);
 
         articleList.removeIf((article) -> hashes.contains(article.getHash()));
 
@@ -47,8 +47,8 @@ public class NewsParserServiceImpl implements NewsParserService {
         }
     }
 
-    private Set<String> getHashesFromDb() {
-        return repository.findAllByHash();
+    private Set<String> getHashesFromDb(Source source) {
+        return repository.findHashesBySource(source);
     }
 
 }
