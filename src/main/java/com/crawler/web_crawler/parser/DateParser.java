@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -16,27 +17,27 @@ public class DateParser {
     private final static String REGEX_TIME = "\\b\\d{1,2}:\\d{2}\\b";
     private final static String REGEX_COMMA = "[,]";
 
-    public LocalDate toLocalDateFromString(String date) {
+    public Optional<LocalDate> toLocalDateFromString(String date) {
         date = date.toLowerCase();
         date = deleteTime(date);
 
         int offset = getOffsetIfAdverbTimeExist(date);
         if(offset <= 0)
-            return LocalDate.now().plusDays(offset);
+            return Optional.of(LocalDate.now().plusDays(offset));
 
-        LocalDate localDate;
+        Optional<LocalDate> localDate;
         for(DateTimeFormatter formatter: ParseUtils.getDateTimeFormatters()) {
             try {
                 if(!date.matches(REGEX_FULL_YEAR) && !date.matches(REGEX_SHORT_YEAR))
                     date = date + " " + LocalDate.now().getYear();
-                localDate = LocalDate.parse(date, formatter);
+                localDate = Optional.of(LocalDate.parse(date, formatter));
 
                 return localDate;
             } catch (DateTimeParseException ignore) {}
         }
 
         log.warn("Unable to recognize date: {}", date);
-        return null;
+        return Optional.empty();
     }
 
     private String deleteTime(String date) {

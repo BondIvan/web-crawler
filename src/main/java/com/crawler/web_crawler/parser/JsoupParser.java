@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -64,13 +65,13 @@ public class JsoupParser implements Parser {
         for(int i = 0; i < size; i++) {
             String title = titles.get(i);
             String content = (i < contents.size()) ? contents.get(i) : null;
-            LocalDate publishDate = dateParser.toLocalDateFromString(publishDates.get(i));
-            if(title == null || publishDate == null) {
+            Optional<LocalDate> publishDate = dateParser.toLocalDateFromString(publishDates.get(i));
+            if(title == null || publishDate.isEmpty()) {
                 log.warn("Skipping article due to missing fields {}", title == null ? "title" : "publish date");
                 continue;
             }
 
-            NewsArticle article = createArticle(source, title, content, publishDate);
+            NewsArticle article = createArticle(source, title, content, publishDate.get());
             articles.add(article);
         }
 

@@ -10,7 +10,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
@@ -28,30 +30,36 @@ class DateParserTest {
     void toLocalDateTimeFromString_whenStringDateHasTime_shouldDeleteTimeAndCommas_returnLocalDate() {
         // Given
         String date = "15 января 2025, 13:41";
-        String date2 = "Сегодня, 15:31";
+        String date2 = "сегодня, 15:31";
 
         // When
-        LocalDate expected = underTest.toLocalDateFromString(date);
-        LocalDate expected2 = underTest.toLocalDateFromString(date2);
+        Optional<LocalDate> actual = underTest.toLocalDateFromString(date);
+        Optional<LocalDate> actual2 = underTest.toLocalDateFromString(date2);
 
         // Then
-        assertEquals(expected, LocalDate.of(2025, 1, 15));
-        assertEquals(expected2, LocalDate.now());
+        Optional<LocalDate> expectedOptionalLocalDate = Optional.of(LocalDate.of(2025, 1, 15));
+        Optional<LocalDate> expectedOptionalLocalDate2 = Optional.of(LocalDate.now());
+
+        assertEquals(expectedOptionalLocalDate, actual);
+        assertEquals(expectedOptionalLocalDate2, actual2);
     }
 
     @Test
     void toLocalDateFromString_whenStringDateDoesntContainYear_shouldAddCurrentYear_returnLocalDate() {
         // Given
         String date = "8 апреля";
-        String date2 = "Вчера, 10 Июля";
+        String date2 = "вчера, 10 Июля";
 
         // When
-        LocalDate expected = underTest.toLocalDateFromString(date);
-        LocalDate expected2 = underTest.toLocalDateFromString(date2);
+        Optional<LocalDate> actual = underTest.toLocalDateFromString(date);
+        Optional<LocalDate> actual2 = underTest.toLocalDateFromString(date2);
 
         // Then
-        assertEquals(expected, LocalDate.of(LocalDate.now().getYear(), 4, 8));
-        assertEquals(expected2, LocalDate.now().plusDays(-1));
+        Optional<LocalDate> expectedOptionalLocalDate = Optional.of(LocalDate.of(LocalDate.now().getYear(), 4, 8));
+        Optional<LocalDate> expectedOptionalLocalDate2 = Optional.of(LocalDate.now().plusDays(-1));
+
+        assertEquals(expectedOptionalLocalDate, actual);
+        assertEquals(expectedOptionalLocalDate2, actual2);
     }
 
     @Test
@@ -61,12 +69,15 @@ class DateParserTest {
         String yesterday = "Вчера";
 
         // When
-        LocalDate expectedToday = underTest.toLocalDateFromString(todayDay);
-        LocalDate expectedYesterday = underTest.toLocalDateFromString(yesterday);
+        Optional<LocalDate> actual = underTest.toLocalDateFromString(todayDay);
+        Optional<LocalDate> actual2 = underTest.toLocalDateFromString(yesterday);
 
         // Then
-        assertEquals(expectedToday, LocalDate.now());
-        assertEquals(expectedYesterday, LocalDate.now().plusDays(-1));
+        Optional<LocalDate> expectedOptionalLocalDate = Optional.of(LocalDate.now());
+        Optional<LocalDate> expectedOptionalLocalDate2 = Optional.of(LocalDate.now().plusDays(-1));
+
+        assertEquals(expectedOptionalLocalDate, actual);
+        assertEquals(expectedOptionalLocalDate2, actual2);
     }
 
     @Test
@@ -78,16 +89,21 @@ class DateParserTest {
         String date4 = "08.04.25";
 
         // When
-        LocalDate expected = underTest.toLocalDateFromString(date);
-        LocalDate expected2 = underTest.toLocalDateFromString(date2);
-        LocalDate expected3 = underTest.toLocalDateFromString(date3);
-        LocalDate expected4 = underTest.toLocalDateFromString(date4);
+        Optional<LocalDate> actual = underTest.toLocalDateFromString(date);
+        Optional<LocalDate> actual2 = underTest.toLocalDateFromString(date2);
+        Optional<LocalDate> actual3 = underTest.toLocalDateFromString(date3);
+        Optional<LocalDate> actual4 = underTest.toLocalDateFromString(date4);
 
         // Then
-        assertEquals(expected, LocalDate.of(2025, 1, 15));
-        assertEquals(expected2, LocalDate.of(2025, 4, 8));
-        assertEquals(expected3, LocalDate.of(2025, 1, 15));
-        assertEquals(expected4, LocalDate.of(2025, 4, 8));
+        Optional<LocalDate> expectedOptionalLocalDate = Optional.of(LocalDate.of(2025, 1, 15));
+        Optional<LocalDate> expectedOptionalLocalDate2 = Optional.of(LocalDate.of(2025, 4, 8));
+        Optional<LocalDate> expectedOptionalLocalDate3 = Optional.of(LocalDate.of(2025, 1, 15));
+        Optional<LocalDate> expectedOptionalLocalDate4 = Optional.of(LocalDate.of(2025, 4, 8));
+
+        assertEquals(expectedOptionalLocalDate, actual);
+        assertEquals(expectedOptionalLocalDate2, actual2);
+        assertEquals(expectedOptionalLocalDate3, actual3);
+        assertEquals(expectedOptionalLocalDate4, actual4);
     }
 
     @Test
@@ -97,12 +113,12 @@ class DateParserTest {
         String unsupportedDate2 = "Январь, 1";
 
         // When
-        LocalDate expectedNull = underTest.toLocalDateFromString(unsupportedDate);
-        LocalDate expectedNull2 = underTest.toLocalDateFromString(unsupportedDate2);
+        Optional<LocalDate> actualOptionalIsEmpty = underTest.toLocalDateFromString(unsupportedDate);
+        Optional<LocalDate> actualOptionalIsEmpty2 = underTest.toLocalDateFromString(unsupportedDate2);
 
         // Then
-        assertNull(expectedNull);
-        assertNull(expectedNull2);
+        assertThat(actualOptionalIsEmpty).isEmpty();
+        assertThat(actualOptionalIsEmpty2).isEmpty();
     }
 
 

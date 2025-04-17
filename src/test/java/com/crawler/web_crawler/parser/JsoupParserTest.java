@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,9 +65,13 @@ class JsoupParserTest {
         when(document.select(selectors.get(selectorContent))).thenReturn(contentElements);
         when(document.select(selectors.get(selectorDate))).thenReturn(publishDateElements);
 
-        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(LocalDate.of(2025, 1, 1));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(LocalDate.of(2025, 1, 2));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(LocalDate.of(2025, 1, 3));
+        Optional<LocalDate> optionalLocalDate = Optional.of(LocalDate.of(2025, 1, 1));
+        Optional<LocalDate> optionalLocalDate2 = Optional.of(LocalDate.of(2025, 1, 2));
+        Optional<LocalDate> optionalLocalDate3 = Optional.of(LocalDate.of(2025, 1, 3));
+
+        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(optionalLocalDate);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(optionalLocalDate2);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(optionalLocalDate3);
 
         // When
         List<NewsArticle> articleList = underTest.parse(source);
@@ -148,9 +153,13 @@ class JsoupParserTest {
         when(document.select(selectors.get(selectorContent))).thenReturn(contentElements);
         when(document.select(selectors.get(selectorDate))).thenReturn(publishDateElements);
 
-        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(LocalDate.of(2025, 1, 1));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(LocalDate.of(2025, 1, 2));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(null);
+        Optional<LocalDate> optionalLocalDate = Optional.of(LocalDate.of(2025, 1, 1));
+        Optional<LocalDate> optionalLocalDate2 = Optional.of(LocalDate.of(2025, 1, 2));
+        Optional<LocalDate> optionalLocalDate3 = Optional.empty();
+
+        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(optionalLocalDate);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(optionalLocalDate2);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(optionalLocalDate3);
 
         // When
         List<NewsArticle> articleList = underTest.parse(source);
@@ -200,9 +209,13 @@ class JsoupParserTest {
         when(document.select(selectors.get(selectorContent))).thenReturn(contentElements);
         when(document.select(selectors.get(selectorDate))).thenReturn(publishDateElements);
 
-        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(LocalDate.of(2025, 1, 1));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(LocalDate.of(2025, 1, 2));
-        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(LocalDate.of(2025, 1, 3));
+        Optional<LocalDate> optionalLocalDate = Optional.of(LocalDate.of(2025, 1, 1));
+        Optional<LocalDate> optionalLocalDate2 = Optional.of(LocalDate.of(2025, 1, 2));
+        Optional<LocalDate> optionalLocalDate3 = Optional.of(LocalDate.of(2025, 1, 3));
+
+        when(dateParser.toLocalDateFromString(publishDateElements.get(0).text())).thenReturn(optionalLocalDate);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(1).text())).thenReturn(optionalLocalDate2);
+        when(dateParser.toLocalDateFromString(publishDateElements.get(2).text())).thenReturn(optionalLocalDate3);
 
         // When
         List<NewsArticle> articleList = underTest.parse(source);
