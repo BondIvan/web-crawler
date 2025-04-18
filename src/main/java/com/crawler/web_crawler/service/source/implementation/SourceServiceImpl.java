@@ -1,4 +1,4 @@
-package com.crawler.web_crawler.service.implementation;
+package com.crawler.web_crawler.service.source.implementation;
 
 import com.crawler.web_crawler.converter.SourceRequestDtoMapper;
 import com.crawler.web_crawler.exception.SourceAlreadyExistsException;
@@ -6,8 +6,8 @@ import com.crawler.web_crawler.exception.SourceNotFoundException;
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.repository.SourceRepository;
-import com.crawler.web_crawler.service.SourceService;
-import com.crawler.web_crawler.service.scheduler.SchedulerParserService;
+import com.crawler.web_crawler.service.source.SourceService;
+import com.crawler.web_crawler.scheduler.SchedulerParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

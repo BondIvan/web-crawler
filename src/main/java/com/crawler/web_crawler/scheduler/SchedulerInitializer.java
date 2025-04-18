@@ -1,7 +1,7 @@
-package com.crawler.web_crawler.service.scheduler;
+package com.crawler.web_crawler.scheduler;
 
 import com.crawler.web_crawler.model.entity.Source;
-import com.crawler.web_crawler.service.SourceService;
+import com.crawler.web_crawler.service.source.SourceService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

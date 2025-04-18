@@ -36,6 +36,13 @@ public class Source {
     @Column(name = "is_active")
     private Boolean isActive;
 
+    //TODO Add language field for parsing publishDate in different languages
+//    @Column(name = "lang", nullable = false)
+//    private String language;
+
+//    @Transient
+//    private volatile boolean isParsing;
+
     @Override
     public String toString() {
         return String.format("Source: id=%d, isActive=%s, url=%s, schedule=%s, selectors=%s",

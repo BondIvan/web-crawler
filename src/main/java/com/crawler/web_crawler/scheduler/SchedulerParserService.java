@@ -1,4 +1,4 @@
-package com.crawler.web_crawler.service.scheduler;
+package com.crawler.web_crawler.scheduler;
 
 import com.crawler.web_crawler.model.entity.Source;
 

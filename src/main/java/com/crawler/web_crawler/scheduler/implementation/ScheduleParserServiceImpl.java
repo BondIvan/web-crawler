@@ -1,7 +1,8 @@
-package com.crawler.web_crawler.service.scheduler;
+package com.crawler.web_crawler.scheduler.implementation;
 
 import com.crawler.web_crawler.model.entity.Source;
-import com.crawler.web_crawler.service.NewsParserService;
+import com.crawler.web_crawler.scheduler.SchedulerParserService;
+import com.crawler.web_crawler.service.newsArticle.NewsParserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;

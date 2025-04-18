@@ -1,4 +1,4 @@
-package com.crawler.web_crawler.service;
+package com.crawler.web_crawler.service.source;
 
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;

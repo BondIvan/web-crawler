@@ -1,10 +1,10 @@
-package com.crawler.web_crawler.service.implementation;
+package com.crawler.web_crawler.service.newsArticle.implementation;
 
 import com.crawler.web_crawler.model.entity.NewsArticle;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.parser.Parser;
 import com.crawler.web_crawler.repository.NewsArticleRepository;
-import com.crawler.web_crawler.service.NewsParserService;
+import com.crawler.web_crawler.service.newsArticle.NewsParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

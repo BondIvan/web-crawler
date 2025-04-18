@@ -2,8 +2,8 @@ package com.crawler.web_crawler.controller;
 
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
-import com.crawler.web_crawler.service.NewsParserService;
-import com.crawler.web_crawler.service.SourceService;
+import com.crawler.web_crawler.service.newsArticle.NewsParserService;
+import com.crawler.web_crawler.service.source.SourceService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
