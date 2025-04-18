@@ -14,6 +14,7 @@ public class SchedulerConfig {
     public TaskScheduler taskScheduler() {
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
         scheduler.setPoolSize(2);
+        scheduler.setWaitForTasksToCompleteOnShutdown(true);
         scheduler.initialize();
 
         return scheduler;

@@ -7,6 +7,7 @@ import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.repository.SourceRepository;
 import com.crawler.web_crawler.service.SourceService;
+import com.crawler.web_crawler.service.scheduler.SchedulerParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -19,10 +20,14 @@ import java.util.Optional;
 public class SourceServiceImpl implements SourceService {
     private final SourceRepository repository;
     private final SourceRequestDtoMapper mapper;
+    private final SchedulerParserService schedulerParserService;
 
-    public SourceServiceImpl(SourceRepository repository, SourceRequestDtoMapper sourceMapper) {
+    public SourceServiceImpl(SourceRepository repository,
+                             SourceRequestDtoMapper sourceMapper,
+                             SchedulerParserService schedulerParserService) {
         this.repository = repository;
         mapper = sourceMapper;
+        this.schedulerParserService = schedulerParserService;
     }
 
     @Override
@@ -44,16 +49,39 @@ public class SourceServiceImpl implements SourceService {
 
         Source source = mapper.fromDto(sourceRequestDTO);
 
-        //TODO Add validation selectors
-
         log.info("Adding new source with URL: {}", sourceRequestDTO.url());
-
         try {
-            return repository.save(source);
+            Source savedSource = repository.save(source);
+            schedulerParserService.addNewScheduleSource(source);
+            return savedSource;
         } catch (DataIntegrityViolationException e) {
             throw new SourceAlreadyExistsException("Source with this url: " + sourceRequestDTO.url() + " already exist", e);
         }
 
+    }
+
+    @Override
+    public SourceRequestDTO updateSource(Long id, SourceRequestDTO sourceRequestDTO) {
+        Optional<Source> optionalSource = repository.findById(id);
+        if(optionalSource.isEmpty())
+            throw new SourceNotFoundException("Source with such id not found");
+
+        Source source = optionalSource.get();
+        String oldUrl = source.getUrl();
+
+        source.setUrl(sourceRequestDTO.url());
+        source.setSchedule(sourceRequestDTO.schedule());
+        source.setSelectors(sourceRequestDTO.selectors());
+        source.setIsActive(sourceRequestDTO.isActive());
+
+        try {
+            Source updatedSource = repository.save(source);
+            schedulerParserService.cancelScheduleSource(oldUrl);
+            schedulerParserService.addNewScheduleSource(updatedSource);
+            return mapper.toDto(updatedSource);
+        } catch (DataIntegrityViolationException e) {
+            throw new SourceAlreadyExistsException("Source with this url: " + sourceRequestDTO.url() + " already exist", e);
+        }
     }
 
     @Override
@@ -75,6 +103,7 @@ public class SourceServiceImpl implements SourceService {
             throw new SourceNotFoundException("Source with such id not found");
 
         Source source = optionalSource.get();
+        schedulerParserService.cancelScheduleSource(source.getUrl());
 
         log.info("Deleting source with URL: {}", source.getUrl());
 

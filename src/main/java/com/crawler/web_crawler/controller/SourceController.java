@@ -41,6 +41,14 @@ public class SourceController {
         return ResponseEntity.ok("Deleted");
     }
 
+    @PutMapping("/sources/{id}")
+    public ResponseEntity<SourceRequestDTO> updateSource(@PathVariable("id") Long id,
+                                                         @Valid @RequestBody SourceRequestDTO sourceRequestDTO) {
+
+        SourceRequestDTO updatedSourceRequestDto = service.updateSource(id, sourceRequestDTO);
+        return ResponseEntity.ok().body(updatedSourceRequestDto);
+    }
+
     @PostMapping("/source/{id}/parse")
     public void parseSource(@PathVariable("id") Long id) {
         Source source = service.getSource(id);
