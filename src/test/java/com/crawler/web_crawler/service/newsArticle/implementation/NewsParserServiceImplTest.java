@@ -1,10 +1,11 @@
-package com.crawler.web_crawler.service.implementation;
+package com.crawler.web_crawler.service.newsArticle.implementation;
 
 import com.crawler.web_crawler.model.entity.NewsArticle;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.parser.JsoupParser;
 import com.crawler.web_crawler.repository.NewsArticleRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,14 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -44,11 +44,19 @@ class NewsParserServiceImplTest {
     }
 
     @Test
+    @Disabled
+    void parseAndSave_whenTimeLimit_shouldThrowException() {
+        // Given
+        // When
+        // Then
+    }
+
+    @Test
     void parseAndSave_whenNewsArticlesAreNew_shouldSaveAll() {
         // Given
         List<NewsArticle> parsedArticles = new ArrayList<>(List.of(newsArticle1, newsArticle2));
         when(parser.parse(source)).thenReturn(parsedArticles);
-        when(repository.findHashesBySource(any(Source.class))).thenReturn(Set.of());
+        when(repository.findHashesBySource(any(Source.class))).thenReturn(Collections.emptySet());
 
         // When
         underTest.parseAndSave(source);

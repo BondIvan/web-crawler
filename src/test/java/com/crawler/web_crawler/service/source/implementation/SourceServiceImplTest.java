@@ -1,4 +1,4 @@
-package com.crawler.web_crawler.service.implementation;
+package com.crawler.web_crawler.service.source.implementation;
 
 import com.crawler.web_crawler.converter.SourceRequestDtoMapper;
 import com.crawler.web_crawler.exception.SourceAlreadyExistsException;
@@ -6,6 +6,7 @@ import com.crawler.web_crawler.exception.SourceNotFoundException;
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.repository.SourceRepository;
+import com.crawler.web_crawler.scheduler.SchedulerParserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,24 +29,104 @@ class SourceServiceImplTest {
     private SourceRepository repository;
     @Mock
     private SourceRequestDtoMapper mapper;
+    @Mock
+    private SchedulerParserService schedulerParserService;
     @InjectMocks
     private SourceServiceImpl underTest;
 
     private Source source1;
     private Source source2;
-    private Source source3;
     private SourceRequestDTO sourceRequestDTO1;
     private SourceRequestDTO sourceRequestDTO2;
-    private SourceRequestDTO sourceRequestDTO3;
 
     @BeforeEach
     void setUp() {
         source1 = new Source(1L, "https://source1.com", "1 1 1 1 1 1", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"), true);
         source2 = new Source(2L, "https://source2.com", "2 2 2 2 2 2", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"), true);
-        source3 = new Source(3L, "https://source3.com", "3 3 3 3 3 3", Map.of("Key1Source3", "Value1Source3", "Key2Source3", "Value2Source3"), false);
         sourceRequestDTO1 = new SourceRequestDTO("https://source1.com", "1 1 1 1 1 1", Map.of("Key1Source1", "Value1Source1", "Key2Source1", "Value2Source1"), true);
         sourceRequestDTO2 = new SourceRequestDTO("https://source2.com", "2 2 2 2 2 2", Map.of("Key1Source2", "Value1Source2", "Key2Source2", "Value2Source2"), true);
-        sourceRequestDTO3 = new SourceRequestDTO("https://source3.com", "3 3 3 3 3 3", Map.of("Key1Source3", "Value1Source3", "Key2Source3", "Value2Source3"), false);
+    }
+
+    @Test
+    void updateSource_whenSourceExist_shouldReturnDto() {
+        // Given
+        Long id = 1L;
+        String oldUrl = source1.getUrl();
+        SourceRequestDTO newSourceRequestDto = new SourceRequestDTO(
+                "https://new.com",
+                "0 * * * * *",
+                Map.of("key1", "value1"),
+                false
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(source1));
+        when(repository.save(source1)).thenReturn(source1);
+        when(mapper.toDto(source1)).thenReturn(newSourceRequestDto);
+
+        // When
+        SourceRequestDTO updatedDto = underTest.updateSource(id, newSourceRequestDto);
+
+        // Then
+        assertEquals("https://new.com", source1.getUrl());
+        assertEquals("0 * * * * *", source1.getSchedule());
+        assertEquals("value1", source1.getSelectors().get("key1"));
+        assertFalse(source1.getIsActive());
+
+        verify(repository).save(source1);
+        verify(schedulerParserService).cancelScheduleSource(oldUrl);
+        verify(schedulerParserService).addNewScheduleSource(source1);
+        verify(mapper).toDto(source1);
+
+        assertThat(newSourceRequestDto).isEqualTo(updatedDto);
+    }
+
+    @Test
+    void updateSource_whenSourceDoesntExist_shouldThrowException() {
+        // Given
+        Long id = 1L;
+
+        when(repository.findById(id)).thenReturn(Optional.empty());
+
+        // When
+        SourceNotFoundException exception = assertThrows(
+                SourceNotFoundException.class,
+                () -> underTest.updateSource(id, any(SourceRequestDTO.class)));
+
+        // Then
+        assertEquals("Source with such id not found", exception.getMessage());
+
+        verify(repository).findById(id);
+        verifyNoInteractions(schedulerParserService);
+    }
+
+    @Test
+    void updateSource_whenSourceExistButUpdateError_shouldThrowException() {
+        // Given
+        Long id = 1L;
+        String oldUrl = source1.getUrl();
+        String messageError = "Error updating source with url: " + oldUrl + ". Message: Db error";
+        SourceRequestDTO newSourceRequestDto = new SourceRequestDTO(
+                "https://new.com",
+                "0 * * * * *",
+                Map.of("key1", "value1"),
+                false
+        );
+
+        when(repository.findById(id)).thenReturn(Optional.of(source1));
+
+        doThrow(new DataIntegrityViolationException("Db error")).when(repository).save(source1);
+
+        // When
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> underTest.updateSource(id, newSourceRequestDto)
+        );
+
+        // Then
+        assertEquals(messageError, exception.getMessage());
+        assertThat(exception).hasCauseExactlyInstanceOf(DataIntegrityViolationException.class);
+        verify(repository).save(source1);
+        verifyNoInteractions(schedulerParserService);
     }
 
     @Test
@@ -128,6 +209,7 @@ class SourceServiceImplTest {
 
         // Then
         verify(repository).existsByUrl(sourceRequestDTO.url());
+        verify(schedulerParserService).addNewScheduleSource(savedSource);
         verify(mapper).fromDto(sourceRequestDTO);
         verify(repository).save(newSource);
         assertEquals(savedSource, result);
@@ -152,6 +234,7 @@ class SourceServiceImplTest {
         verify(repository).existsByUrl(duplicateUrlSourceRequestDTO.url());
         verifyNoInteractions(mapper);
         verifyNoMoreInteractions(repository);
+        verifyNoInteractions(schedulerParserService);
     }
 
     @Test
@@ -178,6 +261,7 @@ class SourceServiceImplTest {
         verify(mapper).fromDto(sourceRequestDTO);
         verify(repository, times(1)).save(source);
         verifyNoMoreInteractions(repository);
+        verifyNoMoreInteractions(schedulerParserService);
     }
 
     @Test
@@ -229,6 +313,7 @@ class SourceServiceImplTest {
 
         verify(repository).findById(id);
         verify(repository).delete(source1);
+        verify(schedulerParserService).cancelScheduleSource(source1.getUrl());
         verifyNoMoreInteractions(repository);
     }
 
@@ -247,5 +332,7 @@ class SourceServiceImplTest {
         assertEquals("Source with such id not found", exception.getMessage());
         verify(repository).findById(id);
         verifyNoMoreInteractions(repository);
+        verifyNoInteractions(schedulerParserService);
     }
+
 }
