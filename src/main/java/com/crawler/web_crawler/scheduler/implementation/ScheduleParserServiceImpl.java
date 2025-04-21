@@ -3,6 +3,7 @@ package com.crawler.web_crawler.scheduler.implementation;
 import com.crawler.web_crawler.model.entity.Source;
 import com.crawler.web_crawler.scheduler.SchedulerParserService;
 import com.crawler.web_crawler.service.newsArticle.NewsParserService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.TaskScheduler;
@@ -19,6 +20,8 @@ import java.util.concurrent.ScheduledFuture;
 public class ScheduleParserServiceImpl implements SchedulerParserService {
     private final TaskScheduler taskScheduler;
     private final NewsParserService newsParserService;
+
+    @Getter
     private final Map<String, ScheduledFuture<?>> scheduledSources = new ConcurrentHashMap<>();
 
     @Override
