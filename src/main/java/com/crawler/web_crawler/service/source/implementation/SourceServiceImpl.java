@@ -49,10 +49,10 @@ public class SourceServiceImpl implements SourceService {
 
         Source source = mapper.fromDto(sourceRequestDTO);
 
-        log.info("Adding new source with URL: {}", sourceRequestDTO.url());
         try {
             Source savedSource = repository.save(source);
             schedulerParserService.addNewScheduleSource(source);
+            log.info("Adding new source with URL: {}", sourceRequestDTO.url());
             return savedSource;
         } catch (DataIntegrityViolationException e) {
             throw new SourceAlreadyExistsException("Source with this url: " + sourceRequestDTO.url() + " already exist", e);
@@ -80,7 +80,8 @@ public class SourceServiceImpl implements SourceService {
             schedulerParserService.addNewScheduleSource(updatedSource);
             return mapper.toDto(updatedSource);
         } catch (DataIntegrityViolationException e) {
-            throw new SourceAlreadyExistsException("Source with this url: " + sourceRequestDTO.url() + " already exist", e);
+            log.warn("Error updating source with url: {}. Message: {}", oldUrl, e.getMessage());
+            throw new RuntimeException("Error updating source with url: " + oldUrl + ". Message: " + e.getMessage(), e);
         }
     }
 
