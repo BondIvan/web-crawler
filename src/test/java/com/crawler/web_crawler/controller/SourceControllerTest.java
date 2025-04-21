@@ -4,8 +4,8 @@ import com.crawler.web_crawler.exception.SourceAlreadyExistsException;
 import com.crawler.web_crawler.exception.SourceNotFoundException;
 import com.crawler.web_crawler.model.dto.SourceRequestDTO;
 import com.crawler.web_crawler.model.entity.Source;
-import com.crawler.web_crawler.service.NewsParserService;
-import com.crawler.web_crawler.service.implementation.SourceServiceImpl;
+import com.crawler.web_crawler.service.newsArticle.NewsParserService;
+import com.crawler.web_crawler.service.source.implementation.SourceServiceImpl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -70,6 +70,49 @@ class SourceControllerTest {
     }
 
     @Test
+    void updateSource_whenValidRequest_shouldReturn200WithSourceDTO() throws Exception {
+        // Given
+        Long id = 1L;
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
+        SourceRequestDTO updatedDTO = new SourceRequestDTO("https://new.com", "2 2 2 2 2 2", Map.of("k", "v"), false);
+        String jsonRequestBody = objectMapper.writeValueAsString(sourceRequestDTO);
+
+        when(sourceService.updateSource(id, sourceRequestDTO)).thenReturn(updatedDTO);
+
+        // When & Then
+        mockMvc.perform(put("/api/v1/sources/{id}", id)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonRequestBody))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.url").value(updatedDTO.url()))
+                .andExpect(jsonPath("$.schedule").value(updatedDTO.schedule()))
+                .andExpect(jsonPath("$.selectors.k").value(updatedDTO.selectors().get("k")))
+                .andExpect(jsonPath("$.isActive").value(updatedDTO.isActive()));
+
+        verify(sourceService).updateSource(id, sourceRequestDTO);
+    }
+
+    @Test
+    void updateSource_whenSourceDoesntExist_shouldReturn404() throws Exception {
+        // Given
+        Long id = 1L;
+        String errorMessage = "Source with such id not found";
+        SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
+        String jsonRequestBody = objectMapper.writeValueAsString(sourceRequestDTO);
+
+        when(sourceService.updateSource(eq(id), any())).thenThrow(new SourceNotFoundException(errorMessage));
+
+        // When & Then
+        mockMvc.perform(put("/api/v1/sources/{id}", id)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(jsonRequestBody))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$").value(errorMessage));
+
+        verify(sourceService).updateSource(eq(id), any(SourceRequestDTO.class));
+    }
+
+    @Test
     void addSource_whenValidRequest_shouldReturn201WithSourceDTO() throws Exception {
         // Given
         SourceRequestDTO sourceRequestDTO = new SourceRequestDTO("https://source.com", "1 1 1 1 1 1", Map.of("key", "value"), true);
@@ -82,7 +125,8 @@ class SourceControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.url").value(sourceRequestDTO.url()))
                 .andExpect(jsonPath("$.schedule").value(sourceRequestDTO.schedule()))
-                .andExpect(jsonPath("$.selectors.key").value(sourceRequestDTO.selectors().get("key")));
+                .andExpect(jsonPath("$.selectors.key").value(sourceRequestDTO.selectors().get("key")))
+                .andExpect(jsonPath("$.isActive").value(sourceRequestDTO.isActive()));
 
         verify(sourceService).addSource(sourceRequestDTO);
     }
